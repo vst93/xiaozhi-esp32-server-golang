@@ -1379,7 +1379,11 @@ func (s *ChatSession) OnListenStart(startSeq uint64, shouldStartAudioIdleWindow 
 
 // startChat 开始对话
 func (s *ChatSession) AddAsrResultToQueue(text string, speakerResult *speaker.IdentifyResult) error {
-	return s.AddAsrResultToQueueWithOptions(text, speakerResult, llmResponseChannelOptions{})
+	options := llmResponseChannelOptions{}
+	if viper.GetBool("chat.single_turn") {
+		options.ttsTurnEndPolicy = ttsTurnEndPolicyGoodbyeAndIdle
+	}
+	return s.AddAsrResultToQueueWithOptions(text, speakerResult, options)
 }
 
 func (s *ChatSession) AddAsrResultToQueueWithOptions(text string, speakerResult *speaker.IdentifyResult, options llmResponseChannelOptions) error {

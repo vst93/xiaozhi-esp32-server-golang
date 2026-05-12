@@ -3484,6 +3484,7 @@ func (ac *AdminController) GetChatSettings(c *gin.Context) {
 			"max_idle_duration":         30000,
 			"chat_max_silence_duration": 400,
 			"realtime_mode":             4,
+			"single_turn":               false,
 			"global_system_prompt":      "",
 		},
 	}
@@ -3514,6 +3515,9 @@ func (ac *AdminController) GetChatSettings(c *gin.Context) {
 			if realtimeMode, ok := chatData["realtime_mode"].(float64); ok && int(realtimeMode) >= 1 && int(realtimeMode) <= 4 {
 				response["chat"].(gin.H)["realtime_mode"] = int(realtimeMode)
 			}
+			if singleTurn, ok := chatData["single_turn"].(bool); ok {
+				response["chat"].(gin.H)["single_turn"] = singleTurn
+			}
 			if globalPrompt, ok := chatData["global_system_prompt"].(string); ok {
 				response["chat"].(gin.H)["global_system_prompt"] = strings.TrimSpace(globalPrompt)
 			}
@@ -3534,6 +3538,7 @@ func (ac *AdminController) UpdateChatSettings(c *gin.Context) {
 			MaxIdleDuration        int64  `json:"max_idle_duration"`
 			ChatMaxSilenceDuration int64  `json:"chat_max_silence_duration"`
 			RealtimeMode           int    `json:"realtime_mode"`
+			SingleTurn             bool   `json:"single_turn"`
 			GlobalSystemPrompt     string `json:"global_system_prompt"`
 		} `json:"chat"`
 	}
@@ -3578,6 +3583,7 @@ func (ac *AdminController) UpdateChatSettings(c *gin.Context) {
 		"max_idle_duration":         req.Chat.MaxIdleDuration,
 		"chat_max_silence_duration": req.Chat.ChatMaxSilenceDuration,
 		"realtime_mode":             req.Chat.RealtimeMode,
+		"single_turn":               req.Chat.SingleTurn,
 		"global_system_prompt":      req.Chat.GlobalSystemPrompt,
 	})
 	if err != nil {
@@ -3658,6 +3664,7 @@ func (ac *AdminController) UpdateChatSettings(c *gin.Context) {
 				"max_idle_duration":         req.Chat.MaxIdleDuration,
 				"chat_max_silence_duration": req.Chat.ChatMaxSilenceDuration,
 				"realtime_mode":             req.Chat.RealtimeMode,
+				"single_turn":               req.Chat.SingleTurn,
 				"global_system_prompt":      req.Chat.GlobalSystemPrompt,
 			},
 		},

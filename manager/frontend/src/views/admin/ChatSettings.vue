@@ -43,6 +43,16 @@
             <el-option :value="4" label="4 - asr出结果打断" />
           </el-select>
         </el-form-item>
+        <el-form-item label="单轮对话模式" prop="chat.single_turn">
+          <el-switch
+            v-model="form.chat.single_turn"
+            active-text="开启"
+            inactive-text="关闭"
+          />
+          <div class="form-help">
+            开启后，用户普通语音问答播报完成即关闭当前会话，不继续自动监听下一轮提问。
+          </div>
+        </el-form-item>
         <el-form-item label="全局System Prompt描述" prop="chat.global_system_prompt">
           <el-input
             v-model="form.chat.global_system_prompt"
@@ -79,6 +89,7 @@ const form = reactive({
     max_idle_duration: 30000,
     chat_max_silence_duration: 400,
     realtime_mode: 4,
+    single_turn: false,
     global_system_prompt: ''
   }
 })
@@ -108,6 +119,7 @@ const loadSettings = async () => {
     form.chat.max_idle_duration = Number(data.chat?.max_idle_duration ?? 30000)
     form.chat.chat_max_silence_duration = Number(data.chat?.chat_max_silence_duration ?? 400)
     form.chat.realtime_mode = Number(data.chat?.realtime_mode ?? 4)
+    form.chat.single_turn = !!data.chat?.single_turn
     form.chat.global_system_prompt = String(data.chat?.global_system_prompt ?? '')
   } catch (error) {
     ElMessage.error('加载聊天设置失败')
@@ -133,6 +145,7 @@ const saveSettings = async () => {
         max_idle_duration: Number(form.chat.max_idle_duration),
         chat_max_silence_duration: Number(form.chat.chat_max_silence_duration),
         realtime_mode: Number(form.chat.realtime_mode),
+        single_turn: !!form.chat.single_turn,
         global_system_prompt: String(form.chat.global_system_prompt || '')
       }
     })

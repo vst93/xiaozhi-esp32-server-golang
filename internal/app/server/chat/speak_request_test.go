@@ -628,6 +628,30 @@ func TestAddAsrResultToQueueWithOptionsCarriesTurnEndPolicy(t *testing.T) {
 	}
 }
 
+func TestAddAsrResultToQueueUsesSingleTurnConfig(t *testing.T) {
+	manager, _ := newSpeakRequestTestManager(types_conn.TransportTypeMqttUdp)
+	session := &ChatSession{
+		clientState:   manager.clientState,
+		chatTextQueue: util.NewQueue[AsrResponseChannelItem](1),
+	}
+
+	viper.Set("chat.single_turn", true)
+	defer viper.Set("chat.single_turn", false)
+
+	if err := session.AddAsrResultToQueue("需要走LLM", nil); err != nil {
+		t.Fatalf("AddAsrResultToQueue returned error: %v", err)
+	}
+
+	item, err := session.chatTextQueue.Pop(context.Background(), time.Duration(-1))
+	if err != nil {
+		t.Fatalf("expected queued asr item, got %v", err)
+	}
+
+	if got := ttsTurnEndPolicyFromContext(item.ctx); got != ttsTurnEndPolicyGoodbyeAndIdle {
+		t.Fatalf("expected turn-end policy %d, got %d", ttsTurnEndPolicyGoodbyeAndIdle, got)
+	}
+}
+
 func TestAddTextToTTSQueueWithOptionsKeepsPlaybackHookOutOfQueueStart(t *testing.T) {
 	manager, conn := newSpeakRequestTestManager(types_conn.TransportTypeMqttUdp)
 	ttsManager := NewTTSManager(manager.clientState, NewServerTransport(conn, manager.clientState), nil)
